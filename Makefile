@@ -17,7 +17,12 @@ clean:
 
 new:
 	rm -f scan scanner.cpp parse parser.cpp parser.hpp
-	bison -d -o parser.cpp parser.y
+	bison -d -o parser.cpp -v parser.y
 	flex -o scanner.cpp scanner.l
 	g++ parser.cpp scanner.cpp -o parse
-	./parse
+test:
+	rm -f scan scanner.cpp parse parser.cpp parser.hpp
+	bison -d -o parser.cpp -v parser.y
+	flex -o scanner.cpp scanner.l
+	g++ parser.cpp scanner.cpp -o parse
+	./parse < ./testing_code/test.py > output.txt
