@@ -161,6 +161,11 @@ statement
         *new_program += *new_string;
         $$ = new_string;
     }
+    | BREAK NEWLINE{
+        std::string * new_string = new std::string("break;");
+        *new_program += *new_string;
+        $$ = new_string;
+    }
     ;
 whileStatement
     : WHILE condition COLON NEWLINE INDENT statement DEDENT{
@@ -171,9 +176,21 @@ whileStatement
     }
     ;
 condition
-    : terminal comparison terminal
-    | terminal op terminal comparison terminal
-    | terminal
+    : terminal comparison terminal {
+        std::string * new_string = new std::string("");
+        *new_string = *$1 + *$2 + *$3;
+        $$ = new_string;
+    }
+    | terminal op terminal comparison terminal{
+        std::string * new_string = new std::string("");
+        *new_string = *$1 + *$2 + *$3 + *$4 + *$5;
+        $$ = new_string;
+    }
+    | terminal{
+        std::string * new_string = new std::string("");
+        *new_string = *$1;
+        $$ = new_string;
+    }
     ;
 assignmentStatement
     : IDENTIFIER ASSIGN expression NEWLINE { 
