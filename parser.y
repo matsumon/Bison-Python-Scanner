@@ -62,6 +62,8 @@
 %type <str> statement
 %type <str> assignmentStatement
 %type <str> conditionalStatement
+%type <str> elifStatement
+%type <str> elseStatement
 
 %start program
 
@@ -80,9 +82,34 @@ buffer
     }
     ;
 conditionalStatement
-    : IF condition COLON NEWLINE INDENT statement DEDENT{
+    : IF condition COLON NEWLINE INDENT statement DEDENT elifStatement{
         std::string * new_string = new std::string("");
-        *new_string = "if(" + *$2 + "){\n" + *$6 +"}\n";
+        *new_string = "if(" + *$2 + "){\n" + *$6 +"}\n" + *$8;
+        *new_program += *new_string;
+        std::cout<<"CONDITIONAL "<<*new_string<<std::endl;
+        $$ = new_string;
+    }
+    ;
+elifStatement
+    : ELIF condition COLON NEWLINE INDENT statement DEDENT elifStatement{
+        std::string * new_string = new std::string("");
+        std::string * new_string_piece = new std::string();
+        if($8->size() > 0){ *new_string_piece = *$8;}
+        *new_string = "else if(" + *$2 + "){\n" + *$6 +"}\n" + *new_string_piece;
+        *new_program += *new_string;
+        std::cout<<"CONDITIONAL "<<*new_string<<std::endl;
+        $$ = new_string;
+    }
+    | {$$ = NULL;}
+    | elseStatement {
+        std::string * new_string = new std::string(*$1);
+        $$ = new_string;
+    }
+    ;
+elseStatement
+    : ELSE COLON NEWLINE INDENT statement DEDENT{
+        std::string * new_string = new std::string("");
+        *new_string = "else {\n" + *$5 +"}\n";
         *new_program += *new_string;
         std::cout<<"CONDITIONAL "<<*new_string<<std::endl;
         $$ = new_string;
