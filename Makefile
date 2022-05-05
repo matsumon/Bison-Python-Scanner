@@ -21,7 +21,7 @@ new:
 	flex -o scanner.cpp scanner.l
 	g++ parser.cpp scanner.cpp -o parse
 test:
-	rm -f scan scanner.cpp parse parser.cpp parser.hpp
+	rm -f scan scanner.cpp parse parser.cpp parser.hpp output.txt
 	bison -d -o parser.cpp -v parser.y
 	flex -o scanner.cpp scanner.l
 	g++ parser.cpp scanner.cpp -o parse

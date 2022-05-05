@@ -59,32 +59,44 @@
 %type <str> condition
 %type <str> comparison
 %type <str> buffer
+%type <str> program
 %type <str> statement
 %type <str> assignmentStatement
 %type <str> conditionalStatement
 %type <str> elifStatement
 %type <str> elseStatement
+%type <str> whileStatement
 
 %start program
 
 %%
 
 program
-    : buffer{}
+    : buffer
     ;
 buffer
     : statement{
         std::string * new_string = new std::string("");
         *new_string = *$1;
         *new_program += *new_string;
-        std::cout<<"HERE"<<std::endl;
         $$ = new_string;
     }
     ;
 conditionalStatement
     : IF condition COLON NEWLINE INDENT statement DEDENT elifStatement{
         std::string * new_string = new std::string("");
-        *new_string = "if(" + *$2 + "){\n" + *$6 +"}\n" + *$8;
+        std::string temp = "";
+        std::string temp2 = "";
+        std::cout<<"CONDITIONAL "<<std::endl;
+        std::cout<<"CONDITIONAL "<<$8<<std::endl;
+        std::cout<<"CONDITIONAL "<<*$6<<std::endl;
+        if($8 != 0){
+            temp = *$8;
+        }
+        if($6 != 0){
+            temp2 = *$6;
+        }
+        *new_string = "if(" + *$2 + "){\n" + temp2 +"}\n" + temp;
         *new_program += *new_string;
         std::cout<<"CONDITIONAL "<<*new_string<<std::endl;
         $$ = new_string;
@@ -93,14 +105,14 @@ conditionalStatement
 elifStatement
     : ELIF condition COLON NEWLINE INDENT statement DEDENT elifStatement{
         std::string * new_string = new std::string("");
-        std::string * new_string_piece = new std::string();
-        if($8->size() > 0){ *new_string_piece = *$8;}
-        *new_string = "else if(" + *$2 + "){\n" + *$6 +"}\n" + *new_string_piece;
+        std::string new_string_piece = "";
+        if($8 != 0){ new_string_piece = *$8;}
+        *new_string = "else if(" + *$2 + "){\n" + *$6 +"}\n" + new_string_piece;
         *new_program += *new_string;
         std::cout<<"CONDITIONAL "<<*new_string<<std::endl;
         $$ = new_string;
     }
-    | {$$ = NULL;}
+    | {$$ = 0;}
     | elseStatement {
         std::string * new_string = new std::string(*$1);
         $$ = new_string;
@@ -117,20 +129,26 @@ elseStatement
     ;
 statement
     : assignmentStatement statement{
-        std::string * new_string = new std::string("");
+        std::string * new_string = new std::string();
         *new_string = *$1 + *$2;
-       // *new_program += *new_string;
+        *new_program += *new_string;
        $$ = new_string;
     }
     | conditionalStatement statement{
-        std::string * new_string = new std::string("");
+        std::string * new_string = new std::string();
         *new_string = *$1 + *$2;
-       // *new_program += *new_string;
+        *new_program += *new_string;
+        $$ = new_string;
+    }
+    | whileStatement statement{
+        std::string * new_string = new std::string();
+        *new_string = *$1 + *$2;
+        *new_program += *new_string;
         $$ = new_string;
     }
     | conditionalStatement{
         std::string * new_string = new std::string(*$1);
-       // *new_program += *new_string;
+        *new_program += *new_string;
         $$ = new_string;
     }
     | assignmentStatement{
@@ -138,18 +156,32 @@ statement
         *new_program += *new_string;
         $$ = new_string;
     }
+    | whileStatement{
+        std::string * new_string = new std::string(*$1);
+        *new_program += *new_string;
+        $$ = new_string;
+    }
+    ;
+whileStatement
+    : WHILE condition COLON NEWLINE INDENT statement DEDENT{
+        std::string * new_string = new std::string();
+        *new_string = "while(" + *$2 + "){\n" + *$6 +"}";
+        *new_program += *new_string;
+        $$ = new_string;
+    }
     ;
 condition
     : terminal comparison terminal
     | terminal op terminal comparison terminal
+    | terminal
     ;
 assignmentStatement
     : IDENTIFIER ASSIGN expression NEWLINE { 
         std::string * new_string = new std::string("");
         *new_string = *$1 + "=" + *$3 + ";" + "\n";
         symbols[*$1] = *$1;
-      //  std::cout<<"ASSIGNMENT "<<*new_string<<std::endl; 
-        //*new_program += *new_string;
+        std::cout<<"ASSIGNMENT "<<*new_string<<std::endl; 
+        *new_program += *new_string;
         $$ = new_string; 
     } 
     ;
@@ -159,7 +191,7 @@ expression
     ;
 math
     : math op terminal{
-        std::string * new_string = new std::string(*$1);
+        std::string * new_string = new std::string();
         *new_string = *$1 + *$2 + *$3;
         $$ = new_string;
     }
@@ -188,7 +220,11 @@ terminal
         std::string * new_string = new std::string(*$1);
         $$ = new_string; 
     } 
-    | BOOLEAN { 
+    | TRUE { 
+        std::string * new_string = new std::string(*$1);
+        $$ = new_string; 
+    } 
+    | FALSE { 
         std::string * new_string = new std::string(*$1);
         $$ = new_string; 
     } 
@@ -245,6 +281,7 @@ void yyerror(const char* err) {
 
 int main() {
     if (!yylex()) {
+        std::cout << "MAIN"<< std::endl;
         std::map<std::string, std::string>::iterator it;
         for (it = symbols.begin(); it != symbols.end(); it++) {
             std::cout <<"std::string "<< it->first << ";" << std::endl;
@@ -252,7 +289,7 @@ int main() {
         std::cout<<*new_program<<std::endl;
         return 0;
     } else {
-        std::cout << "HERE"<< std::endl;
+        std::cout << "ERROR MAIN"<< std::endl;
         return 1;
     }
 }
