@@ -6,9 +6,7 @@
  * Since we're only parsing 1 file, we don't need to have yywrap() (plus,
  * having it included messes up compilation).
  */
-%option noyywrap
 
-%option yylineno
 
 %{
   #include <iostream>
@@ -25,7 +23,9 @@
   YYSTYPE lexeme;
   yypstate* parserState = yypstate_new();
 %}
+%option noyywrap
 
+%option yylineno
 %%
 
 %{
