@@ -11,6 +11,7 @@
 %define api.pure full
 %define api.push-pull push
 %define parse.error verbose
+
 %union {
     std::string* str;
 }
@@ -58,7 +59,6 @@
 %type <str> expression
 %type <str> condition
 %type <str> comparison
-%type <str> buffer
 %type <str> program
 %type <str> statement
 %type <str> assignmentStatement
@@ -70,26 +70,27 @@
 %start program
 
 %%
-
 program
-    : buffer
-    ;
-buffer
-    : statement{
-        std::string * new_string = new std::string("");
+   : statement program{
+       std::string * new_string = new std::string("");
+       *new_string = *$1 + *$2;
+       *new_program =*new_program +  *new_string;
+       std::cout<<"program statement"<<*$1<<*$2<<std::endl;
+       $$ = new_string;
+   }
+    | statement {
+       std::string * new_string = new std::string("");
         *new_string = *$1;
-        *new_program += *new_string;
+       *new_program =*new_program +  *new_string;
+        std::cout<<"statement"<<*$1<<std::endl;
         $$ = new_string;
     }
     ;
 conditionalStatement
-    : IF condition COLON NEWLINE INDENT statement DEDENT elifStatement{
+    : IF condition COLON NEWLINE INDENT program DEDENT elifStatement{
         std::string * new_string = new std::string("");
         std::string temp = "";
         std::string temp2 = "";
-        std::cout<<"CONDITIONAL "<<std::endl;
-        std::cout<<"CONDITIONAL "<<$8<<std::endl;
-        std::cout<<"CONDITIONAL "<<*$6<<std::endl;
         if($8 != 0){
             temp = *$8;
         }
@@ -97,19 +98,15 @@ conditionalStatement
             temp2 = *$6;
         }
         *new_string = "if(" + *$2 + "){\n" + temp2 +"}\n" + temp;
-        *new_program += *new_string;
-        std::cout<<"CONDITIONAL "<<*new_string<<std::endl;
         $$ = new_string;
     }
     ;
 elifStatement
-    : ELIF condition COLON NEWLINE INDENT statement DEDENT elifStatement{
+    : ELIF condition COLON NEWLINE INDENT program DEDENT elifStatement{
         std::string * new_string = new std::string("");
-        std::string new_string_piece = "";
-        if($8 != 0){ new_string_piece = *$8;}
-        *new_string = "else if(" + *$2 + "){\n" + *$6 +"}\n" + new_string_piece;
-        *new_program += *new_string;
-        std::cout<<"CONDITIONAL "<<*new_string<<std::endl;
+        std::string * new_string_piece = new std::string("");
+        if($8 != 0){ *new_string_piece = *$8;}
+        *new_string = "else if(" + *$2 + "){\n" + *$6 +"}\n" + *new_string_piece;
         $$ = new_string;
     }
     | {$$ = 0;}
@@ -119,59 +116,52 @@ elifStatement
     }
     ;
 elseStatement
-    : ELSE COLON NEWLINE INDENT statement DEDENT{
+    : ELSE COLON NEWLINE INDENT program DEDENT{
         std::string * new_string = new std::string("");
         *new_string = "else {\n" + *$5 +"}\n";
-        *new_program += *new_string;
-        std::cout<<"CONDITIONAL "<<*new_string<<std::endl;
         $$ = new_string;
     }
     ;
 statement
-    : assignmentStatement statement{
-        std::string * new_string = new std::string();
-        *new_string = *$1 + *$2;
-        *new_program += *new_string;
-       $$ = new_string;
-    }
-    | conditionalStatement statement{
-        std::string * new_string = new std::string();
-        *new_string = *$1 + *$2;
-        *new_program += *new_string;
-        $$ = new_string;
-    }
-    | whileStatement statement{
-        std::string * new_string = new std::string();
-        *new_string = *$1 + *$2;
-        *new_program += *new_string;
-        $$ = new_string;
-    }
-    | conditionalStatement{
+//   : statement assignmentStatement {
+//       std::string * new_string = new std::string();
+//       *new_string = *$1 + *$2;
+//      $$ = new_string;
+//   }
+//   | statement conditionalStatement{
+//       std::string * new_string = new std::string();
+//       *new_string = *$1 + *$2;
+//        std::cout<<"PRINT COND1"<< *$1 << *$2<<std::endl;
+//
+//       $$ = new_string;
+//   }
+//   | statement whileStatement{
+//       std::string * new_string = new std::string();
+//       *new_string = *$1 + *$2;
+//       $$ = new_string;
+//   }
+    : conditionalStatement{
         std::string * new_string = new std::string(*$1);
-        *new_program += *new_string;
         $$ = new_string;
     }
     | assignmentStatement{
         std::string * new_string = new std::string(*$1);
-        *new_program += *new_string;
+        std::cout<<"ASSIGNMENT"<<*new_string<<std::endl;
         $$ = new_string;
     }
     | whileStatement{
         std::string * new_string = new std::string(*$1);
-        *new_program += *new_string;
         $$ = new_string;
     }
     | BREAK NEWLINE{
         std::string * new_string = new std::string("break;");
-        *new_program += *new_string;
         $$ = new_string;
     }
     ;
 whileStatement
-    : WHILE condition COLON NEWLINE INDENT statement DEDENT{
+    : WHILE condition COLON NEWLINE INDENT program DEDENT{
         std::string * new_string = new std::string();
         *new_string = "while(" + *$2 + "){\n" + *$6 +"}";
-        *new_program += *new_string;
         $$ = new_string;
     }
     ;
@@ -193,18 +183,19 @@ condition
     }
     ;
 assignmentStatement
-    : IDENTIFIER ASSIGN expression NEWLINE { 
+    : IDENTIFIER ASSIGN expression NEWLINE {
         std::string * new_string = new std::string("");
         *new_string = *$1 + "=" + *$3 + ";" + "\n";
         symbols[*$1] = *$1;
-        std::cout<<"ASSIGNMENT "<<*new_string<<std::endl; 
-        *new_program += *new_string;
-        $$ = new_string; 
-    } 
+        std::cout<<"ASSIGNMENT "<<*new_string<<std::endl;
+        $$ = new_string;
+    }
     ;
-
 expression
-    : math
+    : math{
+        std::string * new_string = new std::string(*$1);
+        $$ = new_string;
+    }
     ;
 math
     : math op terminal{
@@ -224,70 +215,70 @@ math
     ;
 
 terminal
-    : IDENTIFIER { 
+    : IDENTIFIER {
         std::string * new_string = new std::string(*$1);
         symbols[*$1] = *$1;
-        $$ = new_string;  
-    } 
-    | FLOAT { 
+        $$ = new_string;
+    }
+    | FLOAT {
         std::string * new_string = new std::string(*$1);
-        $$ = new_string;  
-    } 
-    | INTEGER { 
+        $$ = new_string;
+    }
+    | INTEGER {
         std::string * new_string = new std::string(*$1);
-        $$ = new_string; 
-    } 
-    | TRUE { 
+        $$ = new_string;
+    }
+    | TRUE {
         std::string * new_string = new std::string(*$1);
-        $$ = new_string; 
-    } 
-    | FALSE { 
+        $$ = new_string;
+    }
+    | FALSE {
         std::string * new_string = new std::string(*$1);
-        $$ = new_string; 
-    } 
+        $$ = new_string;
+    }
     ;
 op
     : PLUS {
         std::string * new_string = new std::string(*$1);
-        $$ = new_string; 
+        $$ = new_string;
     }
     | MINUS {
         std::string * new_string = new std::string(*$1);
-        $$ = new_string; 
+        $$ = new_string;
     }
     | TIMES {
         std::string * new_string = new std::string(*$1);
-        $$ = new_string; 
+        $$ = new_string;
     }
     | DIVIDEDBY {
         std::string * new_string = new std::string(*$1);
-        $$ = new_string; 
+        $$ = new_string;
     }
     ;
 comparison
     : GT {
         std::string * new_string = new std::string(">");
-        $$ = new_string; 
+        $$ = new_string;
     }
     | GTE {
         std::string * new_string = new std::string(">=");
-        $$ = new_string; 
+        $$ = new_string;
     }
     | LT {
         std::string * new_string = new std::string("<");
-        $$ = new_string; 
+        $$ = new_string;
     }
     | LTE {
         std::string * new_string = new std::string("<=");
-        $$ = new_string; 
+        $$ = new_string;
     }
     | EQ {
         std::string * new_string = new std::string("==");
-        $$ = new_string; 
+        $$ = new_string;
     }
     | NEQ {
         std::string * new_string = new std::string("!=");
-        $$ = new_string; 
+        $$ = new_string;
     }
     ;
 %%
@@ -301,7 +292,7 @@ int main() {
         std::cout << "MAIN"<< std::endl;
         std::map<std::string, std::string>::iterator it;
         for (it = symbols.begin(); it != symbols.end(); it++) {
-            std::cout <<"std::string "<< it->first << ";" << std::endl;
+            std::cout <<"double "<< it->first << ";" << std::endl;
         }
         std::cout<<*new_program<<std::endl;
         return 0;
