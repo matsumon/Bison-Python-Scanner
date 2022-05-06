@@ -20,7 +20,7 @@
   * https://docs.python.org/3/reference/lexical_analysis.html#indentation
   */
   std::stack<int> _indent_stack;
-  YYSTYPE lexeme;
+  YYSTYPE yylval;
   yypstate* parserState = yypstate_new();
 %}
 %option noyywrap
@@ -95,8 +95,8 @@
       std::cerr << "Error: Incorrect indentation on line " << yylineno
         << std::endl;
       
-      lexeme.str = new std::string(yytext, yyleng);
-      yypush_parse(parserState, yytext[0], &lexeme);
+      yylval.str = new std::string(yytext, yyleng);
+      yypush_parse(parserState, yytext[0], &yylval);
       // return 1;
     }
   }
@@ -132,10 +132,7 @@
   // std::cout << "NEWLINE" << std::endl;
   
   int status = yypush_parse(parserState, NEWLINE, NULL );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+
 }
 
 <<EOF>> {
@@ -148,6 +145,8 @@
     // std::cout << "DEDENT" << std::endl;
     
     int status = yypush_parse(parserState, DEDENT, NULL);
+    status = yypush_parse(parserState, EOF, NULL);
+
     if (status != YYPUSH_MORE) {
       yypstate_delete(parserState);
       return status;
@@ -161,144 +160,105 @@
 "and" {
   // std::cout << "AND\t\t" << yytext << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, AND, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, AND, &yylval );
+
 }
 
 "break" {
   // std::cout << "BREAK\t\t" << yytext << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, BREAK, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, BREAK, &yylval );
+
 }
 
 "def" {
   // std::cout << "DEF\t\t" << yytext << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, DEF, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, DEF, &yylval );
+
 }
 
 "elif" {
   // std::cout << "ELIF\t\t" << yytext << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, ELIF, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, ELIF, &yylval );
+
 }
 
 "else" {
   // std::cout << "ELSE\t\t" << yytext << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, ELSE, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, ELSE, &yylval );
+
 }
 
 "for" {
   // std::cout << "FOR\t\t" << yytext << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, FOR, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, FOR, &yylval );
+
 }
 
 "if" {
   // std::cout << "IF\t\t" << yytext << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, IF, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, IF, &yylval );
+
 }
 
 "not" {
   // std::cout << "NOT\t\t" << yytext << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, NOT, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, NOT, &yylval );
+
 }
 
 "or" {
   // std::cout << "OR\t\t" << yytext << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, OR, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, OR, &yylval );
+
 }
 
 "return" {
   // std::cout << "RETURN\t\t" << yytext << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, RETURN, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, RETURN, &yylval );
+
 }
 
 "while" {
   // std::cout << "WHILE\t\t" << yytext << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, WHILE, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, WHILE, &yylval );
+
 }
 
 "True" {
   // std::cout << "BOOLEAN\t\t" << true << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, TRUE, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, TRUE, &yylval );
+
 }
 
 "False" {
   // std::cout << "BOOLEAN\t\t" << false << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, FALSE, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, FALSE, &yylval );
+
 }
 
 [a-zA-Z_][a-zA-Z0-9_]* {
@@ -308,210 +268,152 @@
    */
   // std::cout << "IDENTIFIER\t" << yytext << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, IDENTIFIER, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, IDENTIFIER, &yylval );
+
 }
 
 [0-9]*"."[0-9]+ {
   // std::cout << "FLOAT\t\t" << atof(yytext) << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, FLOAT, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, FLOAT, &yylval );
+
 }
 
 [0-9]+ {
   // std::cout << "INTEGER\t\t" << atoi(yytext) << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, INTEGER, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, INTEGER, &yylval );
+
 }
 
 "=" {
   // std::cout << "ASSIGN\t\t" << yytext << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, ASSIGN, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, ASSIGN, &yylval );
+
 }
 
 "+" {
   // std::cout << "PLUS\t\t" << yytext << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, PLUS, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, PLUS, &yylval );
+
 }
 
 "-" {
   // std::cout << "MINUS\t\t" << yytext << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, MINUS, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, MINUS, &yylval );
+
 }
 
 "*" {
   // std::cout << "TIMES\t\t" << yytext << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, TIMES, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, TIMES, &yylval );
+
 }
 
 "/" {
   // std::cout << "DIVIDEDBY\t" << yytext << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, DIVIDEDBY, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, DIVIDEDBY, &yylval );
+
 }
 
 "==" {
   // std::cout << "EQ\t\t" << yytext << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, EQ, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, EQ, &yylval );
+
 }
 
 "!=" {
   // std::cout << "NEQ\t\t" << yytext << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, NEQ, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, NEQ, &yylval );
+
 }
 
 ">"  {
   // std::cout << "GT\t\t" << yytext << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, GT, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, GT, &yylval );
+
 }
 
 ">=" {
   // std::cout << "GTE\t\t" << yytext << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, GTE, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, GTE, &yylval );
+
 }
 
 "<" {
   // std::cout << "LT\t\t" << yytext << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, LT, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, LT, &yylval );
+
 }
 
 "<=" {
   // std::cout << "LTE\t\t" << yytext << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, LTE, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, LTE, &yylval );
+
 }
 
 "(" {
   // std::cout << "LPAREN\t\t" << yytext << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, LPAREN, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, LPAREN, &yylval );
+
 }
 
 ")" {
   // std::cout << "RPAREN\t\t" << yytext << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, RPAREN, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, RPAREN, &yylval );
+
 }
 
 "," {
   // std::cout << "COMMA\t\t" << yytext << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, COMMA, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, COMMA, &yylval );
+
 }
 
 ":" {
   // std::cout << "COLON\t\t" << yytext << std::endl;
   
-  lexeme.str = new std::string(yytext, yyleng);
-  int status = yypush_parse(parserState, COLON, &lexeme );
-  if (status != YYPUSH_MORE) {
-    yypstate_delete(parserState);
-    return status;
-  }
+  yylval.str = new std::string(yytext, yyleng);
+  int status = yypush_parse(parserState, COLON, &yylval );
+
 }
 
 . {
   std::cerr << "Unrecognized token on line " << yylineno << ": " << yytext
     << std::endl;
-  // lexeme.str = std::string(yytext[0]);
-  // yypush_parse(parserState, yytext[0], &lexeme);
+  // yylval.str = std::string(yytext[0]);
+   yypush_parse(parserState, ERROR, &yylval);
 }
 
 %%
-
-/*int main() {
-  return yylex();
-}*/
