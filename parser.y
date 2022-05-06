@@ -8,6 +8,7 @@
     void yyerror(const char* err);
     extern int yylex();
     std::string new_program = "";
+    std::string lastSymbol = "";
 %}
 %define api.push-pull push
 %define api.pure full
@@ -189,6 +190,7 @@ assignmentStatement
         std::string * new_string = new std::string("");
         *new_string = *$1 + "=" + *$3 + ";" + "\n";
         symbols[*$1] = *$1;
+        lastSymbol = *$1;
         $$ = new_string;
     }
     ;
@@ -219,6 +221,7 @@ terminal
     : IDENTIFIER {
         std::string * new_string = new std::string(*$1);
         symbols[*$1] = *$1;
+        lastSymbol = *$1;
         $$ = new_string;
     }
     | FLOAT {
@@ -230,11 +233,11 @@ terminal
         $$ = new_string;
     }
     | TRUE {
-        std::string * new_string = new std::string(*$1);
+        std::string * new_string = new std::string("true");
         $$ = new_string;
     }
     | FALSE {
-        std::string * new_string = new std::string(*$1);
+        std::string * new_string = new std::string("false");
         $$ = new_string;
     }
     ;
@@ -300,6 +303,7 @@ int main() {
             std::cout <<"double "<< it->first << ";" << std::endl;
         }
         std::cout<<new_program<<std::endl;
+        std::cout<<"std::cout  <<\""<< lastSymbol << ": \"<<" << lastSymbol <<"<<std::endl;\n" << std::endl;
         std::cout<<"}"<<std::endl;
         return 0;
     } else {
