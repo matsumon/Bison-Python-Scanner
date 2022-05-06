@@ -84,7 +84,7 @@ buffer
     : {$$=NULL;}
     | program test {
         std::string string = $1 ? *$1 : "NONE";
-        std::cout<<"HERE"<<string<<$2<<std::endl;
+        //std::cout<<"HERE"<<string<<$2<<std::endl;
       $$ = $2;
     }
     ;
@@ -112,7 +112,7 @@ conditionalStatement
             temp2 = *$6;
         }
         *new_string = "if(" + *$2 + "){\n" + temp2 +"}\n" + temp;
-        std::cout<<"COND "<< *new_string<<std::endl;
+      //  std::cout<<"COND "<< *new_string<<std::endl;
         $$ = new_string;
     }
     | IF condition COLON NEWLINE INDENT assignmentStatement conditionalStatement DEDENT elifStatement{
@@ -130,7 +130,7 @@ conditionalStatement
             temp3 = *$7;
         }
         *new_string = "if(" + *$2 + "){\n" + temp2 + temp3 + "}\n"+  temp;
-        std::cout<<"COND2 "<< *new_string<<std::endl;
+     //   std::cout<<"COND2 "<< *new_string<<std::endl;
 
         $$ = new_string;
     }
@@ -140,7 +140,7 @@ conditionalStatement
         std::string temp2 = "";
         std::string temp3 = "";
         *new_string = "if(" + *$2 + "){\n" + "break;\n" + "}";
-        std::cout<<"COND3 "<< *new_string<<std::endl;
+     //   std::cout<<"COND3 "<< *new_string<<std::endl;
 
         $$ = new_string;
     }
@@ -291,12 +291,16 @@ void yyerror(const char* err) {
 
 int main() {
     if (!yylex()) {
-        std::cout << "MAIN"<< std::endl;
+   //     std::cout << "MAIN"<< std::endl;
+        std::string main_string = "#include <iostream>\n#include <cmath>\nint main() {\n";
+        std::cout << main_string << std::endl;
+
         std::map<std::string, std::string>::iterator it;
         for (it = symbols.begin(); it != symbols.end(); it++) {
             std::cout <<"double "<< it->first << ";" << std::endl;
         }
         std::cout<<new_program<<std::endl;
+        std::cout<<"}"<<std::endl;
         return 0;
     } else {
         std::cout << "ERROR MAIN"<< std::endl;
